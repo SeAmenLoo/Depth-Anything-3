@@ -225,8 +225,8 @@ class DepthAnything3(nn.Module, PyTorchModelHubMixin):
         if export_dir is not None:
 
             if "gs" in export_format:
-                if infer_gs and "gs_video" not in export_format:
-                    export_format = f"{export_format}-gs_video"
+                if infer_gs and export_format == "gs":
+                    export_format = "gs_video"
                 if "gs_video" in export_format:
                     if "gs_video" not in export_kwargs:
                         export_kwargs["gs_video"] = {}
