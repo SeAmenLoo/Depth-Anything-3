@@ -1,0 +1,11 @@
+$env:PYTHONPATH="src"
+python -m depth_anything_3.cli auto "e:\4dgs\VideoDepthViewer3D\Depth-Anything-3\res\v_Trim.mp4" `
+  --fps 0.08 `
+  --model-dir "e:\4dgs\VideoDepthViewer3D\Depth-Anything-3\models\DA3NESTED-GIANT-LARGE-1.1" `
+  --export-dir "workspace\twoframe_gs_highq" `
+  --export-format gs_ply `
+  --infer-gs `
+  --process-res 504 `
+  --process-res-method lower_bound_resize `
+  --device cpu `
+  --auto-cleanup
