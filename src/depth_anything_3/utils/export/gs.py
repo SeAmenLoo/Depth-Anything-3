@@ -18,7 +18,7 @@ import moviepy.editor as mpy
 import torch
 
 from depth_anything_3.model.utils.gs_renderer import run_renderer_in_chunk_w_trj_mode
-from depth_anything_3.specs import Gaussians, Prediction
+from depth_anything_3.specs import Prediction
 from depth_anything_3.utils.gsply_helpers import save_gaussian_ply
 from depth_anything_3.utils.layout_helpers import hcat, vcat
 from depth_anything_3.utils.visualize import vis_depth_map_tensor
@@ -56,50 +56,6 @@ def export_to_gs_ply(
         prune_border_gs=True,
         match_3dgs_mcmc_dev=False,
     )
-
-
-def export_to_gs_4d_ply_seq(
-    prediction: Prediction,
-    export_dir: str,
-    save_sh_dc_only: bool = True,
-    prune_by_depth_percent: float = 0.9,
-    prune_border_gs: bool = True,
-):
-    gs_world = prediction.gaussians
-    pred_depth = torch.from_numpy(prediction.depth).unsqueeze(-1).to(gs_world.means)
-    v, h, w, _ = pred_depth.shape
-    expected_gaussians = v * h * w
-    if gs_world.means.shape[1] != expected_gaussians:
-        raise ValueError(
-            f"Unexpected gaussian count: got {gs_world.means.shape[1]}, expected {expected_gaussians}"
-        )
-
-    out_dir = os.path.join(export_dir, "gs_4d_ply_seq")
-    os.makedirs(out_dir, exist_ok=True)
-
-    for view_idx in range(v):
-        start_idx = view_idx * h * w
-        end_idx = (view_idx + 1) * h * w
-        frame_gaussians = Gaussians(
-            means=gs_world.means[:, start_idx:end_idx],
-            scales=gs_world.scales[:, start_idx:end_idx],
-            rotations=gs_world.rotations[:, start_idx:end_idx],
-            harmonics=gs_world.harmonics[:, start_idx:end_idx],
-            opacities=gs_world.opacities[:, start_idx:end_idx],
-        )
-        save_path = os.path.join(out_dir, f"{view_idx:06d}.ply")
-        save_gaussian_ply(
-            gaussians=frame_gaussians,
-            save_path=save_path,
-            ctx_depth=pred_depth[view_idx : view_idx + 1],
-            shift_and_scale=False,
-            save_sh_dc_only=save_sh_dc_only,
-            gs_views_interval=1,
-            inv_opacity=True,
-            prune_by_depth_percent=prune_by_depth_percent,
-            prune_border_gs=prune_border_gs,
-            match_3dgs_mcmc_dev=False,
-        )
 
 
 def export_to_gs_video(

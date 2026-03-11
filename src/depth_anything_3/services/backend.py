@@ -54,7 +54,6 @@ class InferenceRequest(BaseModel):
     process_res_method: str = "upper_bound_resize"
     export_feat_layers: List[int] = []
     align_to_input_ext_scale: bool = True
-    infer_gs: bool = False
     # GLB export parameters
     conf_thresh_percentile: float = 40.0
     num_max_points: int = 1_000_000
@@ -279,7 +278,6 @@ def _run_inference_task(task_id: str):
             "process_res_method": request.process_res_method,
             "export_feat_layers": request.export_feat_layers,
             "align_to_input_ext_scale": request.align_to_input_ext_scale,
-            "infer_gs": request.infer_gs,
             "conf_thresh_percentile": request.conf_thresh_percentile,
             "num_max_points": request.num_max_points,
             "show_cameras": request.show_cameras,

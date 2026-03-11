@@ -142,7 +142,6 @@ def auto(
         True, help="[COLMAP] Align prediction to input extrinsics scale"
     ),
     # Pose estimation options
-    infer_gs: bool = typer.Option(False, help="Enable 3D Gaussian Splatting branch"),
     use_ray_pose: bool = typer.Option(
         False, help="Use ray-based pose estimation instead of camera decoder"
     ),
@@ -215,7 +214,6 @@ def auto(
             process_res=process_res,
             process_res_method=process_res_method,
             export_feat_layers=export_feat_layers,
-            infer_gs=infer_gs,
             use_ray_pose=use_ray_pose,
             ref_view_strategy=ref_view_strategy,
             conf_thresh_percentile=conf_thresh_percentile,
@@ -243,7 +241,6 @@ def auto(
             process_res=process_res,
             process_res_method=process_res_method,
             export_feat_layers=export_feat_layers,
-            infer_gs=infer_gs,
             use_ray_pose=use_ray_pose,
             ref_view_strategy=ref_view_strategy,
             conf_thresh_percentile=conf_thresh_percentile,
@@ -271,7 +268,6 @@ def auto(
             process_res=process_res,
             process_res_method=process_res_method,
             export_feat_layers=export_feat_layers,
-            infer_gs=infer_gs,
             use_ray_pose=use_ray_pose,
             ref_view_strategy=ref_view_strategy,
             conf_thresh_percentile=conf_thresh_percentile,
@@ -304,7 +300,6 @@ def auto(
             extrinsics=extrinsics,
             intrinsics=intrinsics,
             align_to_input_ext_scale=align_to_input_ext_scale,
-            infer_gs=infer_gs,
             use_ray_pose=use_ray_pose,
             ref_view_strategy=ref_view_strategy,
             conf_thresh_percentile=conf_thresh_percentile,
@@ -340,7 +335,6 @@ def image(
         False, help="Automatically clean export directory if it exists (no prompt)"
     ),
     # Pose estimation options
-    infer_gs: bool = typer.Option(False, help="Enable 3D Gaussian Splatting branch"),
     use_ray_pose: bool = typer.Option(
         False, help="Use ray-based pose estimation instead of camera decoder"
     ),
@@ -385,9 +379,8 @@ def image(
         process_res=process_res,
         process_res_method=process_res_method,
         export_feat_layers=export_feat_layers,
-        infer_gs=infer_gs,
         use_ray_pose=use_ray_pose,
-        ref_view_strategy=ref_view_strategy,
+        reference_view_strategy=reference_view_strategy,
         conf_thresh_percentile=conf_thresh_percentile,
         num_max_points=num_max_points,
         show_cameras=show_cameras,
@@ -421,7 +414,6 @@ def images(
         False, help="Automatically clean export directory if it exists (no prompt)"
     ),
     # Pose estimation options
-    infer_gs: bool = typer.Option(False, help="Enable 3D Gaussian Splatting branch"),
     use_ray_pose: bool = typer.Option(
         False, help="Use ray-based pose estimation instead of camera decoder"
     ),
@@ -466,9 +458,8 @@ def images(
         process_res=process_res,
         process_res_method=process_res_method,
         export_feat_layers=export_feat_layers,
-        infer_gs=infer_gs,
         use_ray_pose=use_ray_pose,
-        ref_view_strategy=ref_view_strategy,
+        reference_view_strategy=reference_view_strategy,
         conf_thresh_percentile=conf_thresh_percentile,
         num_max_points=num_max_points,
         show_cameras=show_cameras,
@@ -507,7 +498,6 @@ def colmap(
         False, help="Automatically clean export directory if it exists (no prompt)"
     ),
     # Pose estimation options
-    infer_gs: bool = typer.Option(False, help="Enable 3D Gaussian Splatting branch"),
     use_ray_pose: bool = typer.Option(
         False, help="Use ray-based pose estimation instead of camera decoder"
     ),
@@ -555,9 +545,8 @@ def colmap(
         extrinsics=extrinsics,
         intrinsics=intrinsics,
         align_to_input_ext_scale=align_to_input_ext_scale,
-        infer_gs=infer_gs,
         use_ray_pose=use_ray_pose,
-        ref_view_strategy=ref_view_strategy,
+        reference_view_strategy=reference_view_strategy,
         conf_thresh_percentile=conf_thresh_percentile,
         num_max_points=num_max_points,
         show_cameras=show_cameras,
@@ -589,7 +578,6 @@ def video(
         False, help="Automatically clean export directory if it exists (no prompt)"
     ),
     # Pose estimation options
-    infer_gs: bool = typer.Option(False, help="Enable 3D Gaussian Splatting branch"),
     use_ray_pose: bool = typer.Option(
         False, help="Use ray-based pose estimation instead of camera decoder"
     ),
@@ -634,9 +622,8 @@ def video(
         process_res=process_res,
         process_res_method=process_res_method,
         export_feat_layers=export_feat_layers,
-        infer_gs=infer_gs,
         use_ray_pose=use_ray_pose,
-        ref_view_strategy=ref_view_strategy,
+        reference_view_strategy=reference_view_strategy,
         conf_thresh_percentile=conf_thresh_percentile,
         num_max_points=num_max_points,
         show_cameras=show_cameras,
@@ -644,89 +631,9 @@ def video(
     )
 
 
-@app.command()
-def mp4_to_ply_video(
-    video_path: str = typer.Argument(..., help="Path to input MP4 video file"),
-    fps: float = typer.Option(1.0, help="Sampling FPS for frame extraction"),
-    model_dir: str = typer.Option(DEFAULT_MODEL, help="Model directory path"),
-    export_dir: str = typer.Option(DEFAULT_EXPORT_DIR, help="Export directory"),
-    device: str = typer.Option("cuda", help="Device to use"),
-    use_backend: bool = typer.Option(False, help="Use backend service for inference"),
-    backend_url: str = typer.Option(
-        "http://localhost:8008", help="Backend URL (default: http://localhost:8008)"
-    ),
-    process_res: int = typer.Option(504, help="Processing resolution"),
-    process_res_method: str = typer.Option(
-        "upper_bound_resize", help="Processing resolution method"
-    ),
-    ref_view_strategy: str = typer.Option(
-        "saddle_balanced",
-        help="Reference view selection strategy: empty, first, middle, saddle_balanced, saddle_sim_range",
-    ),
-    conf_thresh_percentile: float = typer.Option(
-        40.0, help="[GLB] Lower percentile for adaptive confidence threshold"
-    ),
-    num_max_points: int = typer.Option(
-        1_000_000, help="[GLB] Maximum number of points in the point cloud"
-    ),
-    show_cameras: bool = typer.Option(
-        True, help="[GLB] Show camera wireframes in the exported scene"
-    ),
-    auto_cleanup: bool = typer.Option(
-        False, help="Automatically clean export directory if it exists (no prompt)"
-    ),
-):
-    """Convert MP4 to 4DGS PLY sequence data (no rendered MP4 output)."""
-    InputHandler.validate_path(video_path, "Video file")
-    if os.path.splitext(video_path)[1].lower() != ".mp4":
-        raise typer.BadParameter("该命令仅支持 MP4 输入。")
-
-    export_dir = InputHandler.handle_export_dir(export_dir, auto_cleanup)
-    image_files = VideoHandler.process(video_path, export_dir, fps)
-
-    final_backend_url = backend_url if use_backend else None
-    export_format = "gs_4d_ply_seq"
-
-    run_inference(
-        image_paths=image_files,
-        export_dir=export_dir,
-        model_dir=model_dir,
-        device=device,
-        backend_url=final_backend_url,
-        export_format=export_format,
-        process_res=process_res,
-        process_res_method=process_res_method,
-        infer_gs=True,
-        ref_view_strategy=ref_view_strategy,
-        conf_thresh_percentile=conf_thresh_percentile,
-        num_max_points=num_max_points,
-        show_cameras=show_cameras,
-    )
-    typer.echo(f"✅ 4DGS PLY 序列已导出: {os.path.join(export_dir, 'gs_4d_ply_seq')}")
-
-
 # ============================================================================
 # Service management commands
 # ============================================================================
-
-
-@app.command()
-def check_env():
-    """Check environment requirements for MP4->4DGS PLY sequence pipeline."""
-    import importlib.util
-
-    typer.echo("环境检查结果:")
-    module_map = {
-        "torch": "torch",
-        "opencv-python": "cv2",
-        "plyfile": "plyfile",
-        "numpy": "numpy",
-        "huggingface_hub": "huggingface_hub",
-        "omegaconf": "omegaconf",
-    }
-    for display_name, import_name in module_map.items():
-        found = importlib.util.find_spec(import_name) is not None
-        typer.echo(f"  - {display_name}: {'OK' if found else 'MISSING'}")
 
 
 @app.command()

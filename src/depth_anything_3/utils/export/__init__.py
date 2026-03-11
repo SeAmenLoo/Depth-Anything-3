@@ -13,11 +13,7 @@
 # limitations under the License.
 
 from depth_anything_3.specs import Prediction
-from depth_anything_3.utils.export.gs import (
-    export_to_gs_4d_ply_seq,
-    export_to_gs_ply,
-    export_to_gs_video,
-)
+from depth_anything_3.utils.export.gs import export_to_gs_ply, export_to_gs_video
 
 from .colmap import export_to_colmap
 from .depth_vis import export_to_depth_vis
@@ -50,8 +46,6 @@ def export(
         export_to_depth_vis(prediction, export_dir)
     elif export_format == "gs_ply":
         export_to_gs_ply(prediction, export_dir, **kwargs.get(export_format, {}))
-    elif export_format == "gs_4d_ply_seq":
-        export_to_gs_4d_ply_seq(prediction, export_dir, **kwargs.get(export_format, {}))
     elif export_format == "gs_video":
         export_to_gs_video(prediction, export_dir, **kwargs.get(export_format, {}))
     elif export_format == "colmap":
